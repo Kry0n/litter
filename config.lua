@@ -1,7 +1,6 @@
 Config              = {}
 Config.OpenMenuSpawn= {x = 266.62, y = -1354.23, z = 24.53}
 Config.SpawnBed     = {x = 263.99, y = -1353.00, z = 24.53}
-Config.Locale       = 'fr'
 
 Config.Language = {
 	name_hospital = 'Hôpital',
