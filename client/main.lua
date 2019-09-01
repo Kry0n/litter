@@ -135,6 +135,17 @@ Citizen.CreateThread(function()
 	end
 end)
 
+RegisterNetEvent('spawn:bed')
+AddEventHandler('spawn:bed', function()
+	while not HasModelLoaded("v_med_emptybed") do
+		RequestModel("v_med_emptybed")
+		Citizen.Wait(1)
+	end
+	local object = CreateObject(GetHashKey("v_med_emptybed"), GetEntityCoords(GetPlayerPed(-1), true)-1.0, true)
+	SetEntityHeading(object, 249.76)
+end)
+
+
 function prendre(propObject)
 	
 	NetworkRequestControlOfEntity(propObject)
