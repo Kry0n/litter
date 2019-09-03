@@ -13,4 +13,5 @@ Si vous avez des problèmes :
 https://discord.gg/zGb3UDp
 
 Aperçu vidéo :
-https://youtu.be/U7MmM9u7sg0
+https://youtu.be/5_KQvueEVBA
+https://youtu.be/lMWaD4J2Urk
