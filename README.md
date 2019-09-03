@@ -12,8 +12,9 @@ Pour l'installer :
 
 Vous pouvez changer la langue et le point d'ouverture de spwan dans le config.lua
 
-Si vous avez des problèmes : 
-https://discord.gg/zGb3UDp
+Come on my discord to ask me questions or get help on my scripts
+Si vous avez des problèmes :
+https://discord.gg/7FDTJDy
 
 Aperçu vidéo :
 https://youtu.be/5_KQvueEVBA
