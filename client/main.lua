@@ -28,6 +28,8 @@ local lit = {
 	{lit = "v_med_bed2", distance_stop = 2.4, name = lit_3, title = Config.Language.lit_3},
 }
 
+prop_amb = false
+
 Citizen.CreateThread(function()
 	WarMenu.CreateMenu('prop', Config.Language.name_hospital)
 	while true do
@@ -96,18 +98,19 @@ Citizen.CreateThread(function()
 							WarMenu.OpenMenu('hopital')
 						end
 					end
-
-					if GetDistanceBetweenCoords(pedCoords, pickupCoords, true) <= 0.7 then
-						hintToDisplay(Config.Language.take_bed)
-						if IsControlJustPressed(0, 38) then
-							prendre(closestObject)
+					if IsEntityAttachedToEntity(object, GetPlayerPed(-1)) == false then
+						if GetDistanceBetweenCoords(pedCoords, pickupCoords, true) <= 0.8 then
+							hintToDisplay(Config.Language.take_bed)
+							if IsControlJustPressed(0, 38) then
+								prendre(closestObject)
+							end
 						end
-					end
 
-					if GetDistanceBetweenCoords(pedCoords, pickupCoords2, true) <= 0.7 then
-						hintToDisplay(Config.Language.take_bed)
-						if IsControlJustPressed(0, 38) then
-							prendre(closestObject)
+						if GetDistanceBetweenCoords(pedCoords, pickupCoords2, true) <= 0.8 then
+							hintToDisplay(Config.Language.take_bed)
+							if IsControlJustPressed(0, 38) then
+								prendre(closestObject)
+							end
 						end
 					end
 				end
@@ -135,8 +138,47 @@ Citizen.CreateThread(function()
 	end
 end)
 
+Citizen.CreateThread(function()
+	while true do
+		if prop_amb == false then
+			if GetVehiclePedIsIn(GetPlayerPed(-1)) == 0 then
+				local closestObject = GetClosestVehicle(GetEntityCoords(GetPlayerPed(-1)), 5.0, GetHashKey("ambulance"), 18)
+				if DoesEntityExist(closestObject) then
+					local coords = GetEntityCoords(closestObject) + GetEntityForwardVector(closestObject) * - 7.4
+					if GetDistanceBetweenCoords(GetEntityCoords(GetPlayerPed(-1)), coords.x , coords.y, coords.z, true) <= 4.0 then
+						hintToDisplay(Config.Language.out_vehicle_bed)
+						local brancObject = GetClosestObjectOfType(GetEntityCoords(GetPlayerPed(-1)), 1.0, GetHashKey("v_med_emptybed"))
+						if not IsEntityAttachedToEntity(brancObject, GetPlayerPed(-1)) then
+							if IsControlJustPressed(0, 38) then
+								while not HasModelLoaded("v_med_emptybed") do
+									RequestModel("v_med_emptybed")
+									Citizen.Wait(1)
+								end
+								object = CreateObject(GetHashKey("v_med_emptybed"), coords.x - 3 , coords.y, coords.z, true)
+								SetEntityHeading(GetPlayerPed(-1), GetEntityHeading(GetPlayerPed(-1)) - 180.0)
+								prendre(object)
+							end
+						end
+					end
+				end
+			end
+		end
+		Citizen.Wait(0)
+	end
+end)
+
+RegisterNetEvent('spawn:bed')
+AddEventHandler('spawn:bed', function()
+	while not HasModelLoaded("v_med_emptybed") do
+		RequestModel("v_med_emptybed")
+		Citizen.Wait(1)
+	end
+	local object = CreateObject(GetHashKey("v_med_emptybed"), GetEntityCoords(GetPlayerPed(-1), true)-1.0, true)
+	SetEntityHeading(object, 249.76)
+end)
+
+
 function prendre(propObject)
-	
 	NetworkRequestControlOfEntity(propObject)
 
 	LoadAnim("anim@heists@box_carry@")
@@ -156,9 +198,43 @@ function prendre(propObject)
 			DetachEntity(propObject, true, true)
 		end
 
+		local closestAmb = GetClosestVehicle(GetEntityCoords(GetPlayerPed(-1)), 7.0, GetHashKey("ambulance"), 18)
+		if (closestAmb > 0) then
+			hintToDisplay(Config.Language.in_vehicle_bed)
+			if (IsControlJustPressed(0, 38)) then
+				ClearPedTasksImmediately(GetPlayerPed(-1))
+				DetachEntity(propObject, true, true)
+				prop_amb = true
+				in_ambulance(propObject, closestAmb)
+			end
+		end
+
 		if IsControlJustPressed(0, 38) then
 			ClearPedTasksImmediately(GetPlayerPed(-1))
 			DetachEntity(propObject, true, true)
+		end
+	end
+end
+
+function in_ambulance(propObject, amb)
+	NetworkRequestControlOfEntity(amb)
+	
+	AttachEntityToEntity(propObject, amb, 0.0, 0.0, Config.Depth, Config.Height, 0.0, 0.0, 0.0, 0.0, false, false, true, false, 2, true)
+
+	DisplayHelpTextFromStringLabel(0, 0, 1, -1)
+
+	while IsEntityAttachedToEntity(propObject, amb) do
+		Citizen.Wait(5)
+
+		if GetVehiclePedIsIn(GetPlayerPed(-1)) == 0 then
+			hintToDisplay(Config.Language.out_vehicle_bed)
+
+			if IsControlJustPressed(0, 38) then
+				DetachEntity(propObject, true, true)
+				prop_amb = false
+				SetEntityHeading(GetPlayerPed(-1), GetEntityHeading(GetPlayerPed(-1)) - 180.0)
+				prendre(propObject)
+			end
 		end
 	end
 end

@@ -4,8 +4,16 @@ description 'Litter'
 
 version '2.0.0'
 
+server_scripts {
+	'server/main.lua',
+}
+
 client_scripts {
 	'@warmenu/warmenu.lua',
 	'config.lua',
   	'client/main.lua'
+}
+
+dependencies {
+	'essentialmode',
 }
