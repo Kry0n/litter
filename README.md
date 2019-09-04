@@ -8,7 +8,7 @@ Pour l'installer :
 2. L'ajouter au .cfg de votre serveur start litter
 3. Changer la langue si besoin
 4. Changer la position d'ouverture du menu de la civière
-5. Changer la profondeur et la hauteur de la civière dans l'ambulance
+5. Changer la profondeur et la hauteur de la civière dans l'ambulance ainsi que le hash et la detection de l'ambulance
 
 Vous pouvez changer la langue et le point d'ouverture de spwan dans le config.lua
 
@@ -19,3 +19,4 @@ https://discord.gg/7FDTJDy
 Aperçu vidéo :
 https://youtu.be/5_KQvueEVBA
 https://youtu.be/lMWaD4J2Urk
+https://youtu.be/tr0wkvPekYA
