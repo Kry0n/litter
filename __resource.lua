@@ -2,7 +2,7 @@ resource_manifest_version '44febabe-d386-4d18-afbe-5e627f4af937'
 
 description 'Litter'
 
-version '2.0.0'
+version '2.4'
 
 server_scripts {
 	'server/main.lua',
