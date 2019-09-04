@@ -199,7 +199,7 @@ function prendre(propObject, hash)
 	AttachEntityToEntity(propObject, GetPlayerPed(-1), GetPlayerPed(-1), 0.0, 1.6, -0.43 , 180.0, 180.0, 180.0, 0.0, false, false, true, false, 2, true)
 
 	while IsEntityAttachedToEntity(propObject, GetPlayerPed(-1)) do
-		
+
 		Citizen.Wait(5)
 
 		if not IsEntityPlayingAnim(PlayerPedId(), 'anim@heists@box_carry@', 'idle', 3) then
@@ -210,7 +210,6 @@ function prendre(propObject, hash)
 			ClearPedTasksImmediately(GetPlayerPed(-1))
 			DetachEntity(propObject, true, true)
 		end
-
 		if GetDistanceBetweenCoords(GetEntityCoords(GetPlayerPed(-1)), GetEntityCoords(veh_detect), true) <= 7.0 then
 			hintToDisplay(Config.Language.in_vehicle_bed)
 			if (IsControlJustPressed(0, Config.Press.in_vehicle_bed)) then
@@ -243,7 +242,6 @@ function in_ambulance(propObject, amb, depth, height)
 		if GetVehiclePedIsIn(GetPlayerPed(-1)) == 0 then
 			if GetDistanceBetweenCoords(GetEntityCoords(GetPlayerPed(-1)), GetEntityCoords(amb), true) <= 7.0 then
 				hintToDisplay(Config.Language.out_vehicle_bed)
-
 				if IsControlJustPressed(0, Config.Press.out_vehicle_bed) then
 					DetachEntity(propObject, true, true)
 					prop_amb = false

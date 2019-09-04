@@ -27,6 +27,7 @@ Config.Press = {
 	go_out_bed = Keys["E"],
 }
 
+
 Config.Language = {
 	name_hospital = 'Hôpital',
 	open_menu = 'Appuyez sur ~b~E',
