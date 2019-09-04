@@ -34,32 +34,32 @@ Citizen.CreateThread(function()
 	WarMenu.CreateMenu('prop', Config.Language.name_hospital)
 	while true do
 		if (Vdist(GetEntityCoords(GetPlayerPed(-1), false), Config.OpenMenuSpawn.x, Config.OpenMenuSpawn.y, Config.OpenMenuSpawn.z) <= 0.8) then
-			if(Vdist(GetEntityCoords(GetPlayerPed(-1), true), Config.OpenMenuSpawn.x, Config.OpenMenuSpawn.y, Config.OpenMenuSpawn.z) < 400.0) then
+			if(Vdist(GetEntityCoords(GetPlayerPed(-1), false), Config.OpenMenuSpawn.x, Config.OpenMenuSpawn.y, Config.OpenMenuSpawn.z) < 400.0) then
 				DrawMarker(1, Config.OpenMenuSpawn.x, Config.OpenMenuSpawn.y, Config.OpenMenuSpawn.z - 1, 0, 0, 0, 0, 0, 0, 1.0001, 1.0001, .801, 255, 255, 255,255, 0, 0, 0,0)
 				Drawing.draw3DText(Config.OpenMenuSpawn.x, Config.OpenMenuSpawn.y, Config.OpenMenuSpawn.z - 0.800, Config.Language.name_hospital, 1, 0.3, 0.2, 255, 255, 255, 215)
 				Drawing.draw3DText(Config.OpenMenuSpawn.x, Config.OpenMenuSpawn.y, Config.OpenMenuSpawn.z - 1.100, Config.Language.open_menu, 1, 0.2, 0.1, 125, 125, 125, 215)
 			end  
-			if IsControlJustReleased(0, 38) then
+			if IsControlJustReleased(0, Config.Press.open_menu) then
 				WarMenu.OpenMenu('prop')
 			end
 		end
 		if WarMenu.IsMenuOpened('prop') then
-			DrawMarker(1, Config.SpawnBed.x, Config.SpawnBed.y, Config.SpawnBed.z - 1, 0, 0, 0, 0, 0, 0, 3.0, 3.0, 0.15, 255, 255, 255,255, 0, 0, 0,0)
 			for _,e in pairs(lit) do
 				if WarMenu.Button(e.title) then
 					while not HasModelLoaded(e.lit) do
 						RequestModel(e.lit)
 						Citizen.Wait(1)
 					end
-					local object = CreateObject(GetHashKey(e.lit), Config.SpawnBed.x, Config.SpawnBed.y, Config.SpawnBed.z-1.0, true)
-					SetEntityHeading(object, 249.76)
+					local ped = GetEntityCoords(GetPlayerPed(-1), false)
+					local object = CreateObject(GetHashKey(e.lit), ped.x, ped.y, ped.z-1.0, true)
+					prendre(object)
 					WarMenu.CloseMenu('prop')
 				end
 			end
 			if WarMenu.Button(Config.Language.delete_bed) then
 				for _,z in pairs(lit) do
-					local prop = GetClosestObjectOfType(Config.SpawnBed.x, Config.SpawnBed.y, Config.SpawnBed.z, 1.5, GetHashKey(z.lit))
-					if (prop ~= 0) then
+					local prop = GetClosestObjectOfType(GetEntityCoords(GetPlayerPed(-1), false), 4.0, GetHashKey(z.lit))
+					if IsEntityAttachedToEntity(prop, GetPlayerPed(-1)) ~= 0 or prop ~= 0 then
 						if DoesEntityExist(prop) then
 							SetEntityAsMissionEntity(prop, true, true)
 							DeleteEntity(prop)
@@ -93,22 +93,22 @@ Citizen.CreateThread(function()
 
 				if GetDistanceBetweenCoords(pedCoords, litCoords, true) <= 5.0 then
 					if GetDistanceBetweenCoords(pedCoords, sitCoords, true) <= 1.4 then
-						hintToDisplay(Config.Language.press_menu)
-						if IsControlJustPressed(0, 38) then
+						hintToDisplay(Config.Language.do_action)
+						if IsControlJustPressed(0, Config.Press.do_action) then
 							WarMenu.OpenMenu('hopital')
 						end
 					end
-					if IsEntityAttachedToEntity(object, GetPlayerPed(-1)) == false then
+					if IsEntityAttachedToEntity(closestObject, GetPlayerPed(-1)) == false then
 						if GetDistanceBetweenCoords(pedCoords, pickupCoords, true) <= 0.8 then
 							hintToDisplay(Config.Language.take_bed)
-							if IsControlJustPressed(0, 38) then
+							if IsControlJustPressed(0, Config.Press.take_bed) then
 								prendre(closestObject)
 							end
 						end
 
 						if GetDistanceBetweenCoords(pedCoords, pickupCoords2, true) <= 0.8 then
 							hintToDisplay(Config.Language.take_bed)
-							if IsControlJustPressed(0, 38) then
+							if IsControlJustPressed(0, Config.Press.take_bed) then
 								prendre(closestObject)
 							end
 						end
@@ -139,6 +139,7 @@ Citizen.CreateThread(function()
 end)
 
 Citizen.CreateThread(function()
+	prop_exist = 0
 	while true do
 		if prop_amb == false then
 			if GetVehiclePedIsIn(GetPlayerPed(-1)) == 0 then
@@ -147,16 +148,22 @@ Citizen.CreateThread(function()
 					local coords = GetEntityCoords(closestObject) + GetEntityForwardVector(closestObject) * - 7.4
 					if GetDistanceBetweenCoords(GetEntityCoords(GetPlayerPed(-1)), coords.x , coords.y, coords.z, true) <= 4.0 then
 						hintToDisplay(Config.Language.out_vehicle_bed)
-						local brancObject = GetClosestObjectOfType(GetEntityCoords(GetPlayerPed(-1)), 1.0, GetHashKey("v_med_emptybed"))
-						if not IsEntityAttachedToEntity(brancObject, GetPlayerPed(-1)) then
-							if IsControlJustPressed(0, 38) then
+						for _,z in pairs(lit) do
+							local brancObject = GetClosestObjectOfType(GetEntityCoords(GetPlayerPed(-1)), 1.0, GetHashKey(z.lit))
+							if brancObject == 1 then
+								prop_exist = brancObject
+							end
+						end
+						if not IsEntityAttachedToEntity(prop_exist, GetPlayerPed(-1)) then
+							if IsControlJustPressed(0, Config.Press.out_vehicle_bed) then
 								while not HasModelLoaded("v_med_emptybed") do
 									RequestModel("v_med_emptybed")
 									Citizen.Wait(1)
 								end
-								object = CreateObject(GetHashKey("v_med_emptybed"), coords.x - 3 , coords.y, coords.z, true)
+								local object = CreateObject(GetHashKey("v_med_emptybed"), GetEntityCoords(GetPlayerPed(-1)), true)
 								SetEntityHeading(GetPlayerPed(-1), GetEntityHeading(GetPlayerPed(-1)) - 180.0)
 								prendre(object)
+								prop_exist = 0
 							end
 						end
 					end
@@ -169,12 +176,7 @@ end)
 
 RegisterNetEvent('spawn:bed')
 AddEventHandler('spawn:bed', function()
-	while not HasModelLoaded("v_med_emptybed") do
-		RequestModel("v_med_emptybed")
-		Citizen.Wait(1)
-	end
-	local object = CreateObject(GetHashKey("v_med_emptybed"), GetEntityCoords(GetPlayerPed(-1), true)-1.0, true)
-	SetEntityHeading(object, 249.76)
+	WarMenu.OpenMenu('prop')
 end)
 
 
@@ -186,9 +188,6 @@ function prendre(propObject)
 	AttachEntityToEntity(propObject, GetPlayerPed(-1), GetPlayerPed(-1), 0.0, 1.6, -0.43 , 180.0, 180.0, 180.0, 0.0, false, false, true, false, 2, true)
 
 	while IsEntityAttachedToEntity(propObject, GetPlayerPed(-1)) do
-		Citizen.Wait(5)
-		hintToDisplay(Config.Language.release_bed)
-
 		if not IsEntityPlayingAnim(PlayerPedId(), 'anim@heists@box_carry@', 'idle', 3) then
 			TaskPlayAnim(PlayerPedId(), 'anim@heists@box_carry@', 'idle', 8.0, 8.0, -1, 50, 0, false, false, false)
 		end
@@ -198,10 +197,14 @@ function prendre(propObject)
 			DetachEntity(propObject, true, true)
 		end
 
+		Citizen.Wait(5)
+
+		hintToDisplay(Config.Language.release_bed)
+
 		local closestAmb = GetClosestVehicle(GetEntityCoords(GetPlayerPed(-1)), 7.0, GetHashKey("ambulance"), 18)
 		if (closestAmb > 0) then
 			hintToDisplay(Config.Language.in_vehicle_bed)
-			if (IsControlJustPressed(0, 38)) then
+			if (IsControlJustPressed(0, Config.Press.in_vehicle_bed)) then
 				ClearPedTasksImmediately(GetPlayerPed(-1))
 				DetachEntity(propObject, true, true)
 				prop_amb = true
@@ -209,10 +212,11 @@ function prendre(propObject)
 			end
 		end
 
-		if IsControlJustPressed(0, 38) then
+		if IsControlJustPressed(0, Config.Press.release_bed) then
 			ClearPedTasksImmediately(GetPlayerPed(-1))
 			DetachEntity(propObject, true, true)
 		end
+		
 	end
 end
 
@@ -229,7 +233,7 @@ function in_ambulance(propObject, amb)
 		if GetVehiclePedIsIn(GetPlayerPed(-1)) == 0 then
 			hintToDisplay(Config.Language.out_vehicle_bed)
 
-			if IsControlJustPressed(0, 38) then
+			if IsControlJustPressed(0, Config.Press.out_vehicle_bed) then
 				DetachEntity(propObject, true, true)
 				prop_amb = false
 				SetEntityHeading(GetPlayerPed(-1), GetEntityHeading(GetPlayerPed(-1)) - 180.0)
